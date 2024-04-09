@@ -2,9 +2,34 @@ import streamlit as st
 import subprocess
 import os
 import uuid
-import numpy as np
-import matplotlib.pyplot as plt
 
+# Custom styles
+st.markdown(
+    """
+    <style>
+    .reportview-container .markdown-text-container {
+        flex: 1;
+        padding-top: 0rem;
+        padding-right: 2rem;
+    }
+    .sidebar .sidebar-content {
+        padding: 0rem;
+    }
+    .reportview-container .main .block-container {
+        padding-top: 0rem;
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+    .reportview-container .main {
+        color: white;
+    }
+    textarea {
+        min-height: 250px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # Function to execute the Python code
 def execute_python_code(code):
@@ -12,11 +37,11 @@ def execute_python_code(code):
     unique_filename = f"code_{uuid.uuid4().hex}.py"
     with open(unique_filename, "w") as file:
         file.write(code)
-    
+
     # Execute the code and capture the output
     try:
         output = subprocess.check_output(
-            ["python", unique_filename], stderr=subprocess.STDOUT, timeout=5,env=os.environ
+            ["python", unique_filename], stderr=subprocess.STDOUT, timeout=5
         )
         return output.decode(), False
     except subprocess.CalledProcessError as e:
@@ -25,24 +50,20 @@ def execute_python_code(code):
         # Make sure to remove the file after execution
         os.remove(unique_filename)
 
-# Streamlit layout configuration to hide the hamburger menu and footer
-st.set_page_config(page_title='Online Python IDE', layout='wide', initial_sidebar_state="collapsed", menu_items={'Get Help': None, 'Report a bug': None, 'About': None})
+# Streamlit layout configuration
+st.set_page_config(page_title='Online Python IDE', layout='wide', initial_sidebar_state="collapsed")
 
-# Run button at the top
+# Button and code input at the top
 run_code = st.button('Run Code')
+code = st.text_area("", "Write your code here...", height=300, key="code_editor")
 
 # Columns for the code input and output display
 col1, col2 = st.columns(2)
 
-with col1:
-    code = st.text_area("", "Write your code here...", height=390)
-
-with col2:
-    output_placeholder = st.empty()  # Placeholder for output
-
+# Code execution
 if run_code and code.strip() != "":
-    output, error = execute_python_code(code)
-    with col2:
-        output_placeholder.code(output, language='python')
+    with col1:
+        output, error = execute_python_code(code)
+        st.code(output, language='python')
         if error:
             st.error('Error in execution. Check the output for details.')
