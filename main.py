@@ -23,31 +23,36 @@ def execute_python_code(code):
         # Make sure to remove the file after execution
         os.remove(unique_filename)
 
-# Set the page layout to wide mode
-st.set_page_config(layout="wide")
-
 # Streamlit interface
 st.title('Online Python IDE')
-st.sidebar.header('Controls')
-run_code = st.sidebar.button('Run Code')
 
-# Use expander for the code input area with syntax highlighting
-with st.expander("Write your Python code here:", expanded=True):
-    code = st.text_area("", height=350, key="code")
+# Use columns for layout
+col1, col2 = st.columns(2)
+
+with col1:
+    st.subheader("Write your code here:")
+    code = st.text_area("", height=300, key="code")
+
+with col2:
+    st.subheader("Output:")
+    output_area = st.empty()  # Placeholder for output
+
+# Sidebar for run button
+with st.sidebar:
+    run_code = st.button('Run Code')
 
 # Execute the code when the button is clicked
 if run_code:
     if code.strip() != "":
-        with st.spinner('Running...'):
-            output, error = execute_python_code(code)
-        st.subheader('Output:')
-        st.code(output, language='python')
-
-        # Highlight if there's an error
-        if error:
-            st.error('Error in execution. See output for details.')
+        with output_area:
+            with st.spinner('Running...'):
+                output, error = execute_python_code(code)
+            st.code(output, language='python')
+            # Highlight if there's an error
+            if error:
+                st.error('Error in execution. See output for details.')
     else:
-        st.warning('Please enter some code to execute.')
+        st.sidebar.warning('Please enter some code to execute.')
 
-# Add instructions on the sidebar
-st.sidebar.info('Enter Python code in the expander and click "Run Code" to execute.')
+# Instructions on the sidebar
+st.sidebar.info('Enter Python code in the left column and press "Run Code" to see the output on the right.')
