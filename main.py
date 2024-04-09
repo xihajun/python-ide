@@ -41,11 +41,12 @@ def execute_python_code(code):
 
     # Execute the code and capture the output
     try:
-        env = os.environ.copy()
-        env['PATH'] = '/home/adminuser/venv/lib/python3.11/site-packages:' + env['PATH']
-        python_executable = "/usr/local/bin/python"
+        # env = os.environ.copy()
+        # env['PATH'] = '/home/adminuser/venv/lib/python3.11/site-packages:' + env['PATH']
+        # python_executable = "/usr/local/bin/python"\
+        python_executable = "/home/adminuser/venv/bin/python"
         output = subprocess.check_output(
-            [python_executable, unique_filename], stderr=subprocess.STDOUT, timeout=10, env=env
+            [python_executable, unique_filename], stderr=subprocess.STDOUT, timeout=10
         )
         return output.decode(), False
     except subprocess.CalledProcessError as e:
