@@ -41,8 +41,10 @@ def execute_python_code(code):
 
     # Execute the code and capture the output
     try:
+        env = os.environ.copy()
+        env['PATH'] = '/usr/local/bin/python:' + env['PATH']
         output = subprocess.check_output(
-            ["python", unique_filename], stderr=subprocess.STDOUT, timeout=5
+            ["python", unique_filename], stderr=subprocess.STDOUT, timeout=10, env=env
         )
         return output.decode(), False
     except subprocess.CalledProcessError as e:
