@@ -2,6 +2,7 @@ import streamlit as st
 import subprocess
 import os
 import uuid
+st.set_page_config(page_title='Online Python IDE', layout='wide', initial_sidebar_state="collapsed")
 
 # Custom styles
 st.markdown(
@@ -51,7 +52,6 @@ def execute_python_code(code):
         os.remove(unique_filename)
 
 # Streamlit layout configuration
-st.set_page_config(page_title='Online Python IDE', layout='wide', initial_sidebar_state="collapsed")
 
 # Button and code input at the top
 run_code = st.button('Run Code')
