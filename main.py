@@ -2,6 +2,8 @@ import streamlit as st
 import subprocess
 import os
 import uuid
+import numpy as np
+import matplotlib.plot as plt
 
 # Function to execute the Python code
 def execute_python_code(code):
@@ -13,7 +15,7 @@ def execute_python_code(code):
     # Execute the code and capture the output
     try:
         output = subprocess.check_output(
-            ["python", unique_filename], stderr=subprocess.STDOUT, timeout=5
+            ["python", unique_filename], stderr=subprocess.STDOUT, timeout=5,env=os.environ
         )
         return output.decode(), False
     except subprocess.CalledProcessError as e:
