@@ -3,6 +3,13 @@ import subprocess
 import os
 import uuid
 
+# Disable Streamlit's menu and footer
+st.set_page_config(page_title='Online Python IDE', layout="wide", initial_sidebar_state="collapsed", menu_items={
+    'Get Help': None,
+    'Report a bug': None,
+    'About': None
+})
+
 def execute_python_code(code):
     # Create a unique filename
     unique_filename = f"code_{uuid.uuid4().hex}.py"
@@ -23,36 +30,15 @@ def execute_python_code(code):
         # Make sure to remove the file after execution
         os.remove(unique_filename)
 
-# Streamlit interface
-st.title('Online Python IDE')
+# Main interface
+code = st.text_area("", height=400, key="code")
+run_code = st.button('Run Code')
 
-# Use columns for layout
-col1, col2 = st.columns(2)
-
-with col1:
-    st.subheader("Write your code here:")
-    code = st.text_area("", height=300, key="code")
-
-with col2:
-    st.subheader("Output:")
-    output_area = st.empty()  # Placeholder for output
-
-# Sidebar for run button
-with st.sidebar:
-    run_code = st.button('Run Code')
-
-# Execute the code when the button is clicked
 if run_code:
     if code.strip() != "":
-        with output_area:
-            with st.spinner('Running...'):
-                output, error = execute_python_code(code)
-            st.code(output, language='python')
-            # Highlight if there's an error
-            if error:
-                st.error('Error in execution. See output for details.')
+        output, error = execute_python_code(code)
+        st.code(output, language='python')
+        if error:
+            st.error('Error in execution. Check the output for details.')
     else:
-        st.sidebar.warning('Please enter some code to execute.')
-
-# Instructions on the sidebar
-st.sidebar.info('Enter Python code in the left column and press "Run Code" to see the output on the right.')
+        st.warning('Please enter some code to execute.')
