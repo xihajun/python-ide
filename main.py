@@ -34,35 +34,51 @@ st.markdown(
 )
 
 # Function to execute the Python code
+import matplotlib.pyplot as plt
+import numpy as np
+import tempfile
+import os
+
 def execute_python_code(code):
-    # Create a unique filename
+    # Directory for saving plots
+    plot_dir = tempfile.mkdtemp()
+    modified_code = code.replace("plt.show()", f"plt.savefig(os.path.join('{plot_dir}', str(uuid.uuid4()) + '.png'))")
+
     unique_filename = f"code_{uuid.uuid4().hex}.py"
     with open(unique_filename, "w") as file:
-        file.write(code)
+        file.write(modified_code)
 
-    # Specify the path to the Python executable within the virtual environment
     python_executable = "/home/adminuser/venv/bin/python"
 
-    # Execute the code and capture the output
     try:
         output = subprocess.check_output(
             [python_executable, unique_filename], stderr=subprocess.STDOUT, timeout=10
-        )
-        return output.decode(), False
+        ).decode()
+
+        # Check for generated plot files
+        plot_files = os.listdir(plot_dir)
+        return output, plot_files, False
     except subprocess.CalledProcessError as e:
-        return e.output.decode(), True
+        return e.output.decode(), [], True
     finally:
-        # Make sure to remove the file after execution
         os.remove(unique_filename)
+        # Optionally, remove the plot directory and its contents if you don't want to keep the plots
+        # for os.path.join(plot_dir, file) in plot_files:
+        #     os.remove(file)
+        # os.rmdir(plot_dir)
+
+    return "", [], False
 
 # Input in the sidebar
 run_code = st.sidebar.button('Run Code')
 code = st.sidebar.text_area("",height=200, key="code_editor")
 
-# Output in the main area
 if run_code and code.strip() != "":
-    output, error = execute_python_code(code)
+    output, plot_files, error = execute_python_code(code)
     if error:
         st.error('Error in execution. Check the output for details.')
     else:
         st.code(output, language='python')
+        for plot_file in plot_files:
+            plot_path = os.path.join(tempfile.gettempdir(), plot_file)
+            st.image(plot_path, caption="Plot")
