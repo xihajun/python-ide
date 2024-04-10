@@ -57,7 +57,7 @@ def execute_python_code(code):
 
 # Input in the sidebar
 run_code = st.sidebar.button('Run Code')
-code = st.sidebar.text_area(height=200, key="code_editor")
+code = st.sidebar.text_area("",height=200, key="code_editor")
 
 # Output in the main area
 if run_code and code.strip() != "":
