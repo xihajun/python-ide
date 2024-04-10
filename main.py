@@ -2,7 +2,8 @@ import streamlit as st
 import subprocess
 import os
 import uuid
-st.set_page_config(page_title='Online Python IDE', layout='wide', initial_sidebar_state="collapsed")
+
+st.set_page_config(page_title='Online Python IDE', layout='wide', initial_sidebar_state="expanded")
 
 # Custom styles
 st.markdown(
@@ -39,12 +40,11 @@ def execute_python_code(code):
     with open(unique_filename, "w") as file:
         file.write(code)
 
+    # Specify the path to the Python executable within the virtual environment
+    python_executable = "/home/adminuser/venv/bin/python"
+
     # Execute the code and capture the output
     try:
-        # env = os.environ.copy()
-        # env['PATH'] = '/home/adminuser/venv/lib/python3.11/site-packages:' + env['PATH']
-        # python_executable = "/usr/local/bin/python"\
-        python_executable = "/home/adminuser/venv/bin/python"
         output = subprocess.check_output(
             [python_executable, unique_filename], stderr=subprocess.STDOUT, timeout=10
         )
@@ -55,19 +55,14 @@ def execute_python_code(code):
         # Make sure to remove the file after execution
         os.remove(unique_filename)
 
-# Streamlit layout configuration
+# Input in the sidebar
+code = st.sidebar.text_area("Write your code here...", height=300, key="code_editor")
+run_code = st.sidebar.button('Run Code')
 
-# Button and code input at the top
-run_code = st.button('Run Code')
-code = st.text_area("", "Write your code here...", height=300, key="code_editor")
-
-# Columns for the code input and output display
-col1, col2 = st.columns(2)
-
-# Code execution
+# Output in the main area
 if run_code and code.strip() != "":
-    with col1:
-        output, error = execute_python_code(code)
+    output, error = execute_python_code(code)
+    if error:
+        st.error('Error in execution. Check the output for details.')
+    else:
         st.code(output, language='python')
-        if error:
-            st.error('Error in execution. Check the output for details.')
